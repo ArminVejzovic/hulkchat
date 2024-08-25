@@ -148,6 +148,25 @@ app.post('/messages', authenticateToken, async (req, res) => {
     }
 });
 
+
+app.get('/messages/private/:userId', authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+  const currentUserId = req.user.id;
+
+  try {
+      const messages = await pool.query(
+          `SELECT * FROM messages
+           WHERE (sender_id = $1 AND receiver_id = $2)
+           OR (sender_id = $2 AND receiver_id = $1)
+           ORDER BY created_at ASC`,
+          [currentUserId, userId]
+      );
+      res.json(messages.rows);
+  } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
@@ -172,6 +191,8 @@ io.on('connection', (socket) => {
     console.log('Client disconnected:', socket.id);
     onDisconnection(socket);
   });
+
+  
 
 });
 
