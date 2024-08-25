@@ -17,6 +17,9 @@ const ChatApp = () => {
   const [rateLimitedPrivateChats, setRateLimitedPrivateChats] = useState([]);
   const [chatType, setChatType] = useState('group');
   const [receiverId, setReceiverId] = useState(null);
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [newRoomName, setNewRoomName] = useState('');
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -41,6 +44,25 @@ const ChatApp = () => {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchAvailableRooms = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/rooms/available', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          params: { userId }
+        });
+        setAvailableRooms(response.data);
+      } catch (error) {
+        console.error('Error fetching available rooms:', error);
+      }
+    };
+    if (userId) {
+      fetchAvailableRooms();
+    }
+  }, [userId]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -177,15 +199,102 @@ const ChatApp = () => {
     }
   }, [socket, receiverId, userId]);
 
+  const handleJoinRoom = async (roomId) => {
+    try {
+      await axios.post(`http://localhost:4000/rooms/${roomId}/join`, {
+        userId
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setAvailableRooms(availableRooms.filter(room => room.id !== roomId));
+      setRooms([...rooms, availableRooms.find(room => room.id === roomId)]);
+    } catch (error) {
+      console.error('Error joining room:', error);
+    }
+  };
+
+  const handleLeaveJoindRoom = useCallback(async (roomId) => {
+    try {
+      await axios.post(`http://localhost:4000/rooms/${roomId}/leave`, {
+        userId
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const leftRoom = rooms.find(room => room.id === roomId);
+      setRooms(rooms.filter(room => room.id !== roomId));
+      setAvailableRooms([...availableRooms, leftRoom]);
+      setSelectedRoom(null);
+      setMessages([]);
+    } catch (error) {
+      console.error('Error leaving room:', error);
+    }
+  }, [rooms, userId]);
+
+  const handleCreateRoom = async () => {
+  try {
+    const response = await axios.post(
+      'http://localhost:4000/rooms',
+      {
+        name: newRoomName
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+
+    const createdRoom = response.data;
+    setAvailableRooms([...availableRooms, createdRoom]);
+
+    setNewRoomName('');
+    setShowCreateRoom(false);
+  } catch (error) {
+    console.error('Error creating room:', error);
+  }
+};
+
   return (
     <div>
       <Logout socket={socket} />
       <div>
-        <h2>Chat Rooms</h2>
+      <div>
+          <button onClick={() => setShowCreateRoom(!showCreateRoom)}>
+            {showCreateRoom ? 'Cancel' : 'Create New Room'}
+          </button>
+          {showCreateRoom && (
+            <div>
+              <input
+                type="text"
+                value={newRoomName}
+                onChange={(e) => setNewRoomName(e.target.value)}
+                placeholder="Enter room name"
+              />
+              <button onClick={handleCreateRoom}>Create Room</button>
+            </div>
+          )}
+        </div>
+        <br></br>
+        <h2>Available Rooms</h2>
+        <ul>
+          {availableRooms.map(room => (
+            <li key={room.id}>
+              {room.name}
+              <button onClick={() => handleJoinRoom(room.id)}>Join Room</button>
+            </li>
+          ))}
+        </ul>
+
+        <h2>My Chat Rooms</h2>
         <ul>
           {rooms.map(room => (
-            <li key={room.id} onClick={() => handleRoomSelect(room.id)}>
-              {room.name}
+            <li key={room.id}>
+              <span onClick={() => handleRoomSelect(room.id)}>{room.name}</span>
+              <button onClick={() => handleLeaveJoindRoom(room.id)}>Leave Room</button>
             </li>
           ))}
         </ul>
@@ -236,7 +345,7 @@ const ChatApp = () => {
           <button onClick={handleSendMessage}>Send</button>
 
           {chatType === 'group' ? (
-            <button onClick={handleLeaveRoom}>Leave Room</button>
+            <button onClick={handleLeaveRoom}>Leave Chat Room</button>
           ) : (
             <button onClick={handleLeavePrivateChat}>Leave Chat</button>
           )}

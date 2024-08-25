@@ -167,6 +167,78 @@ app.get('/messages/private/:userId', authenticateToken, async (req, res) => {
   }
 });
 
+
+app.post('/rooms', authenticateToken, async (req, res) => {
+  const { name } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO chat_rooms (name) VALUES ($1) RETURNING *',
+      [name]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating room:', error);
+    res.status(500).json({ error: 'Failed to create room' });
+  }
+});
+
+app.post('/rooms/:roomId/join', authenticateToken, async (req, res) => {
+  const { roomId } = req.params;
+  const { userId } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO room_members (user_id, room_id) VALUES ($1, $2) ON CONFLICT (user_id, room_id) DO NOTHING RETURNING *',
+      [userId, roomId]
+    );
+    if (result.rowCount > 0) {
+      res.status(200).json({ message: 'Joined room successfully' });
+    } else {
+      res.status(409).json({ error: 'User already in room' });
+    }
+  } catch (error) {
+    console.error('Error joining room:', error);
+    res.status(500).json({ error: 'Failed to join room' });
+  }
+});
+
+app.get('/rooms/available', authenticateToken, async (req, res) => {
+  const { userId } = req.query;
+ 
+  try {
+    const result = await pool.query(`
+      SELECT cr.*
+      FROM chat_rooms cr
+      LEFT JOIN room_members rm ON cr.id = rm.room_id AND rm.user_id = $1
+      WHERE rm.user_id IS NULL
+    `, [userId]);
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching available rooms:', error);
+    res.status(500).json({ error: 'Failed to fetch available rooms' });
+  }
+});
+
+
+app.post('/rooms/:roomId/leave', authenticateToken, async (req, res) => {
+  const { roomId } = req.params;
+  const { userId } = req.body;
+  try {
+    const result = await pool.query(
+      'DELETE FROM room_members WHERE user_id = $1 AND room_id = $2 RETURNING *',
+      [userId, roomId]
+    );
+    if (result.rowCount > 0) {
+      res.status(200).json({ message: 'Left room successfully' });
+    } else {
+      res.status(404).json({ error: 'User not in room' });
+    }
+  } catch (error) {
+    console.error('Error leaving room:', error);
+    res.status(500).json({ error: 'Failed to leave room' });
+  }
+});
+
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
@@ -191,8 +263,6 @@ io.on('connection', (socket) => {
     console.log('Client disconnected:', socket.id);
     onDisconnection(socket);
   });
-
-  
 
 });
 
