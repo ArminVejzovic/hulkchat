@@ -8,9 +8,7 @@ const Logout = ({ socket }) => {
     if (socket) {
       socket.disconnect();
     }
-
     localStorage.removeItem('token');
-    
     navigate('/login');
   };
 

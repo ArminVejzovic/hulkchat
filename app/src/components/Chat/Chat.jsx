@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSocket } from '../../SocketContext';
+import { useSocket } from '../../SocketContext.js';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import Logout from '../Logout/Logout';
+import Logout from '../Logout/Logout.jsx';
+import { useNavigate } from 'react-router-dom';
+import moment from 'moment-timezone';
+import RoomList from '../RoomList/RoomList.jsx';
+import UserList from '../UserList/UserList.jsx';
+import Messages from '../Messages/Messages.jsx';
+import MessageInput from '../MessageInput/MessageInput.jsx';
+import RoomCreation from '../RoomCreation/RoomCreation.jsx';
+import RateLimitNotification from '../RateLimitNotification/RateLimitNotification.jsx';
 
-const ChatApp = () => {
+
+const Chat = () => {
   const socket = useSocket();
   const [rooms, setRooms] = useState([]);
   const [users, setUsers] = useState([]);
@@ -20,6 +29,11 @@ const ChatApp = () => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [newRoomName, setNewRoomName] = useState('');
   const [showCreateRoom, setShowCreateRoom] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [reloadLoading, setReloadLoading] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -27,7 +41,57 @@ const ChatApp = () => {
       const decodedToken = jwtDecode(token);
       setUserId(decodedToken.id);
     }
+
+    const redirected = localStorage.getItem('redirected');
+    if (redirected) {
+      setReloadLoading(true);
+      const reloadTimeout = setTimeout(() => {
+        window.location.reload();
+        localStorage.removeItem('redirected');
+      }, 1000);
+
+      return () => clearTimeout(reloadTimeout);
+    } else {
+      setReloadLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/notauthenticated');
+        return;
+      }
+
+      try {
+        await axios.get('http://localhost:4000/verify', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        setIsAuthorized(true);
+      } catch (error) {
+        if (error.response && error.response.status === 403) {
+          localStorage.removeItem('token');
+          navigate('/notauthenticated');
+        } else {
+          console.error('Authentication check failed:', error);
+        }
+      } finally {
+        document.title = "HulkChat - Chat";
+        const favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.href = '/chat.png';
+        document.head.appendChild(favicon);
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,7 +151,7 @@ const ChatApp = () => {
   useEffect(() => {
     if (socket && userId) {
 
-  
+
       socket.on('newMessage', (message) => {
         setMessages((prevMessages) => [...prevMessages, message]);
       });
@@ -195,7 +259,6 @@ const ChatApp = () => {
       socket.emit('leaveRoom', { receiverId, userId });
       setReceiverId(null);
       setMessages([]);
-      window.location.reload();
     }
   }, [socket, receiverId, userId]);
 
@@ -232,127 +295,114 @@ const ChatApp = () => {
     } catch (error) {
       console.error('Error leaving room:', error);
     }
-  }, [rooms, userId]);
+  }, [rooms, userId, availableRooms]);
 
   const handleCreateRoom = async () => {
-  try {
-    const response = await axios.post(
-      'http://localhost:4000/rooms',
-      {
-        name: newRoomName
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+    try {
+      const response = await axios.post(
+        'http://localhost:4000/create/chatRoom',
+        {
+          name: newRoomName
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
         }
-      }
-    );
+      );
 
-    const createdRoom = response.data;
-    setAvailableRooms([...availableRooms, createdRoom]);
+      const createdRoom = response.data;
+      setAvailableRooms([...availableRooms, createdRoom]);
 
-    setNewRoomName('');
-    setShowCreateRoom(false);
-  } catch (error) {
-    console.error('Error creating room:', error);
+      setNewRoomName('');
+      setShowCreateRoom(false);
+    } catch (error) {
+      console.error('Error creating room:', error);
+    }
+  };
+
+  const convertToEuropeanTime = (timestamp) => {
+    const date = moment(timestamp).tz('Europe/Berlin');
+    date.add(2, 'hours');
+    return date.format('DD-MM-YYYY - HH:mm:ss');
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (reloadLoading) return <p>Loading...</p>;
+
+  if (!isAuthorized) {
+    return null;
   }
-};
 
   return (
     <div>
       <Logout socket={socket} />
-      <div>
-      <div>
-          <button onClick={() => setShowCreateRoom(!showCreateRoom)}>
-            {showCreateRoom ? 'Cancel' : 'Create New Room'}
-          </button>
-          {showCreateRoom && (
-            <div>
-              <input
-                type="text"
-                value={newRoomName}
-                onChange={(e) => setNewRoomName(e.target.value)}
-                placeholder="Enter room name"
-              />
-              <button onClick={handleCreateRoom}>Create Room</button>
-            </div>
-          )}
-        </div>
-        <br></br>
-        <h2>Available Rooms</h2>
-        <ul>
-          {availableRooms.map(room => (
-            <li key={room.id}>
-              {room.name}
-              <button onClick={() => handleJoinRoom(room.id)}>Join Room</button>
-            </li>
-          ))}
-        </ul>
+      <RoomCreation
+        showCreateRoom={showCreateRoom}
+        setShowCreateRoom={setShowCreateRoom}
+        newRoomName={newRoomName}
+        setNewRoomName={setNewRoomName}
+        handleCreateRoom={handleCreateRoom}
+      />
 
-        <h2>My Chat Rooms</h2>
-        <ul>
-          {rooms.map(room => (
-            <li key={room.id}>
-              <span onClick={() => handleRoomSelect(room.id)}>{room.name}</span>
-              <button onClick={() => handleLeaveJoindRoom(room.id)}>Leave Room</button>
-            </li>
-          ))}
-        </ul>
-
-        <h2>Users</h2>
-        <ul>
-          {users.map(user => (
-            <li key={user.id} onClick={() => handlePrivateChatSelect(user.id)}>
-              {user.username} {onlineUsers.has(user.id) ? '(Online)' : '(Offline)'}
-            </li>
-          ))}
-        </ul>
-      </div>
-
+      <RoomList
+        availableRooms={availableRooms}
+        rooms={rooms}
+        handleJoinRoom={handleJoinRoom}
+        handleLeaveJoindRoom={handleLeaveJoindRoom}
+        handleRoomSelect={handleRoomSelect}
+        setSelectedRoom={setSelectedRoom}
+        setMessages={setMessages}
+        setChatType={setChatType}
+        setReceiverId={setReceiverId}
+        socket={socket}
+        userId={userId}
+      />
+      <UserList
+        users={users}
+        handlePrivateChatSelect={handlePrivateChatSelect}
+        onlineUsers={onlineUsers}
+      />
       {(selectedRoom || receiverId) && (
         <div>
-          <h2>Messages</h2>
-          <div>
-            {messages.map((msg) => (
-              <div key={msg.id}>
-                <strong>User {msg.sender_id}:</strong> {msg.content}
-                {msg.sender_id === userId && (
-                  <div>
-                    Status: {msg.status || 'sent'} <br></br>
-                    {msg.created_at}
-                  </div>
-                  
-                )}
-              </div>
-            ))}
-            {chatType === 'group' && rateLimitedRooms.includes(selectedRoom) && (
-              <div style={{ color: 'red' }}>
-                Rate limit exceeded in this room. Please wait...
-              </div>
-            )}
-            {chatType === 'private' && rateLimitedPrivateChats.includes(receiverId) && (
-              <div style={{ color: 'red' }}>
-                Rate limit exceeded in this private chat. Please wait...
-              </div>
-            )}
-          </div>
-
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+          <Messages
+            messages={messages}
+            users={users}
+            rooms={rooms}
+            chatType={chatType}
+            rateLimitedRooms={rateLimitedRooms}
+            rateLimitedPrivateChats={rateLimitedPrivateChats}
+            selectedRoom={selectedRoom}
+            receiverId={receiverId}
+            convertToEuropeanTime={convertToEuropeanTime}
+            userId={userId}
           />
-          <button onClick={handleSendMessage}>Send</button>
 
-          {chatType === 'group' ? (
-            <button onClick={handleLeaveRoom}>Leave Chat Room</button>
-          ) : (
-            <button onClick={handleLeavePrivateChat}>Leave Chat</button>
-          )}
+          <RateLimitNotification
+            chatType={chatType}
+            rateLimitedRooms={rateLimitedRooms}
+            rateLimitedPrivateChats={rateLimitedPrivateChats}
+            selectedRoom={selectedRoom}
+            receiverId={receiverId}
+          />
+
+          <MessageInput
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            handleSendMessage={handleSendMessage}
+            chatType={chatType}
+            rateLimitedRooms={rateLimitedRooms}
+            rateLimitedPrivateChats={rateLimitedPrivateChats}
+            selectedRoom={selectedRoom}
+            receiverId={receiverId}
+            handleLeaveRoom={handleLeaveRoom}
+            handleLeavePrivateChat={handleLeavePrivateChat}
+          />
         </div>
       )}
     </div>
   );
 };
 
-export default ChatApp;
+
+export default Chat;

@@ -10,13 +10,8 @@ const pool = new Pool({
 });
 
 async function testDatabaseConnection() {
-    try {
-        const client = await pool.connect();
-        console.log('Connected to the database!');
-        client.release();
-    } catch (error) {
-        console.error('Error connecting to the database:', error);
-    }
+    const client = await pool.connect();
+    client.release();
 }
 
 testDatabaseConnection()

@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "HulkChat - Register";
+    const favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.href = '/chat.png';
+    document.head.appendChild(favicon);
+
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -17,17 +27,14 @@ const Register = () => {
       });
 
       if (response && response.data) {
-        console.log('Registration successful:', response.data);
         setMessage('Registration successful! Redirecting to login page...');
         setTimeout(() => {
           navigate('/login');
         }, 2000);
       } else {
-        console.error('Unexpected response format:', response);
         setMessage('Registration failed. Please try again.');
       }
     } catch (error) {
-      console.error('Error during registration:', error);
       setMessage('Registration failed. Please try again.');
     }
   };

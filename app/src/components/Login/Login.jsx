@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -8,6 +9,15 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "HulkChat - Login";
+    const favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.href = '/chat.png';
+    document.head.appendChild(favicon);
+
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,12 +33,11 @@ const Login = () => {
       if (response && response.data) {
         console.log('Login successful:', response.data.token);
         localStorage.setItem('token', response.data.token);
-
+        localStorage.setItem('redirected', 'true');
         navigate('/chat');
       }
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
-      console.error('Login error:', error.response ? error.response.data : error.message);
     } finally {
       setLoading(false);
     }
