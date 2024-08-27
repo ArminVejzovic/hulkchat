@@ -33,8 +33,8 @@ const RoomList = ({ availableRooms, rooms, handleJoinRoom, handleLeaveJoindRoom,
           {availableRooms.map(room => (
             <li key={room.id} className={styles.roomItem}>
               <span className={styles.roomName}>{room.name}</span>
-              <button 
-                className={styles.joinButton} 
+              <button
+                className={styles.joinButton}
                 onClick={() => handleJoin(room.id)}
               >
                 <FaSignInAlt />
@@ -54,13 +54,20 @@ const RoomList = ({ availableRooms, rooms, handleJoinRoom, handleLeaveJoindRoom,
       <div className={`${styles.dropdownContent} ${openRoomId === 'myRooms' ? styles.active : ''}`}>
         <ul className={styles.roomList}>
           {rooms.map(room => (
-            <li key={room.id} className={styles.roomItem}>
-              <span onClick={() => handleRoomSelect(room.id)} className={styles.roomName}>
+            <li
+              key={room.id}
+              className={styles.roomItem}
+              onClick={() => handleRoomSelect(room.id)}
+            >
+              <span className={styles.roomName}>
                 {room.name}
               </span>
-              <button 
-                className={styles.leaveButton} 
-                onClick={() => handleLeave(room.id)}
+              <button
+                className={styles.leaveButton}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleLeave(room.id);
+                }}
               >
                 <FaSignOutAlt />
               </button>
