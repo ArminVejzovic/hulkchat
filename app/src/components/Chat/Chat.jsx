@@ -11,6 +11,8 @@ import Messages from '../Messages/Messages.jsx';
 import MessageInput from '../MessageInput/MessageInput.jsx';
 import RoomCreation from '../RoomCreation/RoomCreation.jsx';
 import RateLimitNotification from '../RateLimitNotification/RateLimitNotification.jsx';
+import styles from './Chat.module.css';
+import Placeholder from '../Placeholder/Placeholder.jsx';
 
 
 const Chat = () => {
@@ -335,74 +337,86 @@ const Chat = () => {
   }
 
   return (
-    <div>
-      <Logout socket={socket} />
-      <RoomCreation
-        showCreateRoom={showCreateRoom}
-        setShowCreateRoom={setShowCreateRoom}
-        newRoomName={newRoomName}
-        setNewRoomName={setNewRoomName}
-        handleCreateRoom={handleCreateRoom}
-      />
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <Logout socket={socket} />
+      </header>
+      
+      <main className={styles.mainContent}>
+        <aside className={styles.sidebar}>
+          <RoomCreation
+            showCreateRoom={showCreateRoom}
+            setShowCreateRoom={setShowCreateRoom}
+            newRoomName={newRoomName}
+            setNewRoomName={setNewRoomName}
+            handleCreateRoom={handleCreateRoom}
+          />
 
-      <RoomList
-        availableRooms={availableRooms}
-        rooms={rooms}
-        handleJoinRoom={handleJoinRoom}
-        handleLeaveJoindRoom={handleLeaveJoindRoom}
-        handleRoomSelect={handleRoomSelect}
-        setSelectedRoom={setSelectedRoom}
-        setMessages={setMessages}
-        setChatType={setChatType}
-        setReceiverId={setReceiverId}
-        socket={socket}
-        userId={userId}
-      />
-      <UserList
-        users={users}
-        handlePrivateChatSelect={handlePrivateChatSelect}
-        onlineUsers={onlineUsers}
-      />
-      {(selectedRoom || receiverId) && (
-        <div>
-          <Messages
-            messages={messages}
-            users={users}
+          <RoomList
+            availableRooms={availableRooms}
             rooms={rooms}
-            chatType={chatType}
-            rateLimitedRooms={rateLimitedRooms}
-            rateLimitedPrivateChats={rateLimitedPrivateChats}
-            selectedRoom={selectedRoom}
-            receiverId={receiverId}
-            convertToEuropeanTime={convertToEuropeanTime}
+            handleJoinRoom={handleJoinRoom}
+            handleLeaveJoindRoom={handleLeaveJoindRoom}
+            handleRoomSelect={handleRoomSelect}
+            setSelectedRoom={setSelectedRoom}
+            setMessages={setMessages}
+            setChatType={setChatType}
+            setReceiverId={setReceiverId}
+            socket={socket}
             userId={userId}
           />
 
-          <RateLimitNotification
-            chatType={chatType}
-            rateLimitedRooms={rateLimitedRooms}
-            rateLimitedPrivateChats={rateLimitedPrivateChats}
-            selectedRoom={selectedRoom}
-            receiverId={receiverId}
+          <UserList
+            users={users}
+            handlePrivateChatSelect={handlePrivateChatSelect}
+            onlineUsers={onlineUsers}
           />
+        </aside>
 
-          <MessageInput
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            handleSendMessage={handleSendMessage}
-            chatType={chatType}
-            rateLimitedRooms={rateLimitedRooms}
-            rateLimitedPrivateChats={rateLimitedPrivateChats}
-            selectedRoom={selectedRoom}
-            receiverId={receiverId}
-            handleLeaveRoom={handleLeaveRoom}
-            handleLeavePrivateChat={handleLeavePrivateChat}
-          />
+        <div className={styles.chatContainer}>
+          {!selectedRoom && !receiverId ? (
+              <Placeholder />
+            ) : (
+              <>
+              <Messages
+                messages={messages}
+                users={users}
+                rooms={rooms}
+                chatType={chatType}
+                rateLimitedRooms={rateLimitedRooms}
+                rateLimitedPrivateChats={rateLimitedPrivateChats}
+                selectedRoom={selectedRoom}
+                receiverId={receiverId}
+                convertToEuropeanTime={convertToEuropeanTime}
+                userId={userId}
+              />
+
+              <RateLimitNotification
+                chatType={chatType}
+                rateLimitedRooms={rateLimitedRooms}
+                rateLimitedPrivateChats={rateLimitedPrivateChats}
+                selectedRoom={selectedRoom}
+                receiverId={receiverId}
+              />
+
+              <MessageInput
+                newMessage={newMessage}
+                setNewMessage={setNewMessage}
+                handleSendMessage={handleSendMessage}
+                chatType={chatType}
+                rateLimitedRooms={rateLimitedRooms}
+                rateLimitedPrivateChats={rateLimitedPrivateChats}
+                selectedRoom={selectedRoom}
+                receiverId={receiverId}
+                handleLeaveRoom={handleLeaveRoom}
+                handleLeavePrivateChat={handleLeavePrivateChat}
+              />
+            </>
+          )}
         </div>
-      )}
+      </main>
     </div>
   );
 };
-
 
 export default Chat;

@@ -5,6 +5,7 @@ import Login from './components/Login/Login.jsx';
 import LandingPage from './components/LandingPage/LandingPage.jsx';
 import NotAuthenticated from './components/NotAuthenticated/NotAuthenticated.jsx';
 import Chat from './components/Chat/Chat.jsx';
+import NotFound from './components/NotFound/NotFound.jsx';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path='/notauthenticated' element={<NotAuthenticated />} />
         <Route path='/chat' element={<Chat />} />
+        <Route path='*' element={<NotFound />} />
       </Routes>
     </Router>
   );

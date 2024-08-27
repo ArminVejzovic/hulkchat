@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import styles from './Logout.module.css';
 
 const Logout = ({ socket }) => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const Logout = ({ socket }) => {
   };
 
   return (
-    <button onClick={handleLogout}>
+    <button onClick={handleLogout} className={styles.logoutButton}>
       Logout
     </button>
   );

@@ -1,0 +1,80 @@
+.container {
+  display: flex;
+  align-items: flex-end;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #ddd;
+  gap: 8px;
+  box-sizing: border-box;
+  max-width: 100%;
+  flex-wrap: wrap
+}
+
+.textarea {
+  flex-grow: 1;
+  height: 80px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  width: calc(100% - 120px);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+  margin-top: 10px;
+}
+
+.sendButton, .leaveButton {
+  background-color: #148a8a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.leaveButton {
+  background-color: #e74c3c;
+}
+
+.sendButton:disabled, .leaveButton:disabled {
+  background-color: #b0bec5;
+  cursor: not-allowed;
+}
+
+.sendButton:hover, .leaveButton:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 600px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .textarea {
+    height: 60px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .buttonGroup {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .sendButton, .leaveButton {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+}

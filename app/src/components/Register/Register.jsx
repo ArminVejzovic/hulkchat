@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import styles from './Register.module.css';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
@@ -15,11 +16,16 @@ const Register = () => {
     favicon.rel = 'icon';
     favicon.href = '/chat.png';
     document.head.appendChild(favicon);
-
   }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setMessage('Passwords do not match.');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:4000/register', {
         username,
@@ -40,14 +46,15 @@ const Register = () => {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleRegister}>
+    <div className={styles.container}>
+      <h2 className={styles.heading}>Register</h2>
+      <form onSubmit={handleRegister} className={styles.form}>
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className={styles.input}
           required
         />
         <input
@@ -55,11 +62,20 @@ const Register = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className={styles.input}
           required
         />
-        <button type="submit">Register</button>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className={styles.input}
+          required
+        />
+        <button type="submit" className={styles.button}>Register</button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className={styles.message}>{message}</p>}
     </div>
   );
 };

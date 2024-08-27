@@ -1,0 +1,66 @@
+.container {
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.heading {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.userList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.3s;
+}
+
+.userItem:hover {
+  background-color: #f1f1f1;
+}
+
+.online {
+  color: #28a745;
+  margin-right: 8px;
+}
+
+.offline {
+  color: #dc3545;
+  margin-right: 8px;
+}
+
+.online svg, .offline svg {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin: 5px;
+    padding: 5px;
+  }
+
+  .heading {
+    font-size: 1rem;
+    margin-bottom: 5px;
+  }
+
+  .userItem {
+    padding: 6px;
+  }
+
+  .online svg, .offline svg {
+    font-size: 0.8rem;
+  }
+
+  .userItem {
+    font-size: 0.9rem;
+  }
+}

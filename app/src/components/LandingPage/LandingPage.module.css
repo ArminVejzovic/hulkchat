@@ -1,0 +1,135 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.landingContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #eaf7eb;
+    color: #333;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #148a8a;
+    color: white;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.nav .link {
+    margin-left: 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav .link:hover {
+    text-decoration: underline;
+}
+
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.description h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.description p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    max-width: 540px;
+    margin: 0 auto;
+}
+
+.image img {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    margin-top: 30px;
+}
+
+.featuresSection {
+    padding: 40px;
+    background-color: #f3f4f6;
+    text-align: center;
+}
+
+.sectionTitle {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #148a8a;
+}
+
+.featuresList {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.featureItem {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.featureItem h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #148a8a;
+}
+
+.featureItem p {
+    font-size: 1rem;
+    color: #555555;
+}
+
+.footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #2c7a7b;
+    color: white;
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .mainContent {
+        flex-direction: column;
+    }
+
+    .description h2 {
+        font-size: 2rem;
+    }
+
+    .description p {
+        font-size: 1rem;
+    }
+
+    .image img {
+        max-width: 300px;
+    }
+
+    .featuresList {
+        grid-template-columns: 1fr;
+    }
+}

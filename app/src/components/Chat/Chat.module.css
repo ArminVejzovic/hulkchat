@@ -1,0 +1,73 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .header {
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .mainContent {
+    display: flex;
+    flex: 1;
+  }
+  
+  .sidebar {
+    width: 150px;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ddd;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  .chatContainer {
+    flex: 1;
+    padding: 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  
+  .chatContainer > div {
+    margin-bottom: 20px;
+  }
+  
+  textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    margin: 5px;
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
