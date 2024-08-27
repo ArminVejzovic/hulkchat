@@ -12,6 +12,7 @@ Application Link:
 [HulkChat](https://hulkchat-zeta.vercel.app)
 
 Features
+
 User Registration and Authentication
 
 -User Registration: Users can sign up with a username and password.
@@ -110,7 +111,7 @@ Prerequisites
 
 Backend Setup (api folder)
 
-    Clone the repository:
+Clone the repository:
 
 bash
 
