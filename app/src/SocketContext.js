@@ -7,7 +7,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socketIo = io('http://localhost:4000', {
+    const socketIo = io(process.env.REACT_APP_BACKEND_URL, {
       query: {
         token: localStorage.getItem('token')
       },

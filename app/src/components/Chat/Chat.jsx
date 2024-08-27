@@ -67,7 +67,7 @@ const Chat = () => {
       }
 
       try {
-        await axios.get('http://localhost:4000/verify', {
+        await axios.get(`${process.env.REACT_APP_BACKEND_URL}/verify`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -98,7 +98,7 @@ const Chat = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/chatRooms', {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/chatRooms`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -114,7 +114,7 @@ const Chat = () => {
   useEffect(() => {
     const fetchAvailableRooms = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/rooms/available', {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/rooms/available`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
@@ -134,7 +134,7 @@ const Chat = () => {
     const fetchUsers = async () => {
       if (userId !== null) {
         try {
-          const response = await axios.get('http://localhost:4000/users', {
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users`, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -206,7 +206,7 @@ const Chat = () => {
       setChatType('group');
       setReceiverId(null);
       socket.emit('joinRoom', { roomId, userId });
-      axios.get(`http://localhost:4000/messages/${roomId}`, {
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/messages/${roomId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -224,7 +224,7 @@ const Chat = () => {
       setChatType('private');
       setReceiverId(receiverId);
       socket.emit('joinRoom', { receiverId, userId });
-      axios.get(`http://localhost:4000/messages/private/${receiverId}`, {
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/messages/private/${receiverId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -266,7 +266,7 @@ const Chat = () => {
 
   const handleJoinRoom = async (roomId) => {
     try {
-      await axios.post(`http://localhost:4000/rooms/${roomId}/join`, {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/rooms/${roomId}/join`, {
         userId
       }, {
         headers: {
@@ -282,7 +282,7 @@ const Chat = () => {
 
   const handleLeaveJoindRoom = useCallback(async (roomId) => {
     try {
-      await axios.post(`http://localhost:4000/rooms/${roomId}/leave`, {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/rooms/${roomId}/leave`, {
         userId
       }, {
         headers: {
@@ -302,7 +302,7 @@ const Chat = () => {
   const handleCreateRoom = async () => {
     try {
       const response = await axios.post(
-        'http://localhost:4000/create/chatRoom',
+        `${process.env.REACT_APP_BACKEND_URL}/create/chatRoom`,
         {
           name: newRoomName
         },

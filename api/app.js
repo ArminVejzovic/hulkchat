@@ -72,4 +72,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-server.listen(4000);
+server.listen(process.env.PORT || 4000);
