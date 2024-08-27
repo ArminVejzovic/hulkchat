@@ -9,6 +9,7 @@ This project is a real-time chat application built with Node.js, Express.js, Soc
 The application enables users to register, log in, join chat rooms, and send and receive messages in real-time. The backend is deployed on Render, and the frontend is built using React.js and deployed on Vercel.
 
 Application Link:
+HulkChat
 [HulkChat](https://hulkchat-zeta.vercel.app)
 
 Features
