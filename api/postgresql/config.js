@@ -12,6 +12,7 @@ const pool = new Pool({
 async function testDatabaseConnection() {
     const client = await pool.connect();
     client.release();
+    console.log("spojio se")
 }
 
 testDatabaseConnection()
